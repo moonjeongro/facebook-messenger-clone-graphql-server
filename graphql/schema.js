@@ -20,6 +20,10 @@ const typeDefs = gql`
   type Mutation{
     sendMessage(text: String, userId: String): Message!
   }
+
+  type Subscription{
+    messageAdded: Message
+  }
 `;
 
 export default typeDefs;

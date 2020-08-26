@@ -1,33 +1,44 @@
-import {db} from '../firebase';
+import { db } from '../firebase';
 import firebase from 'firebase';
-import { stringify } from 'querystring';
+import { PubSub } from 'apollo-server-express';
 
-export const getInitialMessage = async () => {
-  const messagesCollection = db.collection('messages');
-  const messages = [];
+const messages = [];
+const pubsub = new PubSub();
 
-  const query = messagesCollection.get()
-  .orderBy('timeStamp')
-  .then(snapshot => {
-    snapshot?.forEach(doc => {
-      messages.push({id: doc.id, text: doc.data().text, timeStamp: doc.timeStamp()})
+const MESSAGE_ADDED = 'POST_ADDED';
+
+export const messageAdded = () => pubsub.asyncIterator([MESSAGE_ADDED])
+
+export const getMessage = async () => {
+
+  const observer = await db.collection('messages')
+    .orderBy('timeStamp')
+    .onSnapshot(querySnapshot => {
+      querySnapshot.docChanges().forEach(change => {
+        if (change.type === 'added') {
+          messages.push({ id: change.doc.id, text: change.doc.data().text, timeStamp: change.doc.data().timeStamp })
+        }
+        if (change.type === 'modified') {
+
+        }
+        if (change.type === 'removed') {
+
+        }
+      });
     });
-  })
-  .catch(err => {
-    console.log('Error getting documents', err);
-  });
 
-  console.log(query)
+  return messages;
 }
 
 export const sendMessage = async (text, userId) => {
   const newMessage = {
     text,
     userId,
-    timeStamp: firebase.firestore.FieldValue.serverTimestamp()
+    timeStamp: firebase.firestore?.FieldValue?.serverTimestamp()
   }
 
   const res = await db.collection('messages').add(newMessage)
+  const pubResult = await pubsub.publish(MESSAGE_ADDED, { messageAdded: newMessage })
 
   return newMessage;
 }
