@@ -4,13 +4,15 @@ const typeDefs = gql`
   type Message {
     id: String
     text: String!
-    timeStamp: String! 
-    userId: String
+    userUid: String!
   }
 
   type User {
-    id: String!
-    userName: String!
+    uid: String!
+    displayName: String!
+    emailAddress: String
+    emailVerified: Boolean
+    isAnonymous: Boolean
   }
 
   type Query {
@@ -18,11 +20,11 @@ const typeDefs = gql`
   }
 
   type Mutation{
-    sendMessage(text: String, userId: String): Message!
+    sendMessage(text: String!, userUid: String!): Message!
   }
 
   type Subscription{
-    messageAdded: Message
+    messageAdded: Message!
   }
 `;
 

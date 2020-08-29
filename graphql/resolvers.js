@@ -1,15 +1,15 @@
-import { getMessage, sendMessage, messageAdded } from './db'
+import { getMessages, sendMessage, messageAdded } from './db'
 
 const resolvers = {
     Query: {
-        messages: (_, {}) => getMessage(),
+        messages: (_, {}) => getMessages(),
     },
 
     Mutation: {
-        sendMessage: (_, {text, userId}) => sendMessage(text, userId),
+        sendMessage: (_, {text, userUid}) => sendMessage(text, userUid),
     },
 
-    Subscription: {
+    Subscription:{
       messageAdded:{
         // Additional event labels can be passed to asyncIterator creation
         subscribe: messageAdded,
